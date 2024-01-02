@@ -1,0 +1,1 @@
+enum ActiveStatus {online, offline}
