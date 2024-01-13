@@ -1,13 +1,10 @@
 
-import 'dart:async';
 import 'dart:io';
-
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:whatsapp_clone/helpers/utils/camera_repo.dart';
 import 'package:whatsapp_clone/helpers/utils/file_picker.dart';
-
 import '../../../helpers/utils/locator.dart';
 import '../../features/auth/auth_service.dart';
 import '../../features/user/user_service.dart';
@@ -24,7 +21,6 @@ class AuthCubit extends Cubit<AuthCubitState> {
   final  authProvider =  locator<AuthService>();
   final filePicker = MyFilePicker();
   final cameraProvider = CameraRepo();
-  StreamSubscription<InternetStatus>? _internetSubscription;
   AuthCubitState lastState = const AuthStateInitial();
 
 
@@ -52,9 +48,7 @@ class AuthCubit extends Cubit<AuthCubitState> {
   ///Start point
   startAuthFlow()
   async {
-    //emit(const AuthStateVerifyOtp(phone: '+2348143253986'));
     emit(const AuthStateSignIn());
-    //emit(const AuthStateSetProfile(phone: '+2348143253986'));
   }
 
   ///return the previous state.
@@ -74,32 +68,21 @@ class AuthCubit extends Cubit<AuthCubitState> {
     try {
       final isConnected = await InternetConnection().hasInternetAccess;
       if(isConnected){
-        _internetSubscription?.cancel;
-        _internetSubscription = InternetConnection().onStatusChange.
-        listen((InternetStatus status) async {
-           switch (status) {
-            case InternetStatus.connected:
-              final user = await userProvider.getUserFromSupabaseByPhone(phone);
-              if (user == null) {
-                await authProvider.signUp(phoneNumber: phone);
-                emit(const AuthStateSignIn(isLoading: false));
-                emit(AuthStateVerifyOtp(
-                  phone: phone,
-                ));
-              }
-              else {
-                await authProvider.signIn(phoneNumber: user.phoneNumber);
-                emit(const AuthStateSignIn(isLoading: false));
-                emit(AuthStateVerifyOtp(
-                  phone: user.phoneNumber,
-                ));
-              }
-              break;
-            case InternetStatus.disconnected:
-              throw Exception('Your internet was interrupted during Sign in');
-          }
+        final user = await userProvider.getUserFromSupabaseByPhone(phone);
+        if (user == null) {
+          await authProvider.signUp(phoneNumber: phone);
+          emit(const AuthStateSignIn(isLoading: false));
+          emit(AuthStateVerifyOtp(
+            phone: phone,
+          ));
         }
-        );
+        else {
+          await authProvider.signIn(phoneNumber: user.phoneNumber);
+          emit(const AuthStateSignIn(isLoading: false));
+          emit(AuthStateVerifyOtp(
+            phone: user.phoneNumber,
+          ));
+        }
       }
       else {
         throw Exception('NO INTERNET!');
@@ -124,31 +107,14 @@ class AuthCubit extends Cubit<AuthCubitState> {
     try {
       final isConnected = await InternetConnection().hasInternetAccess;
       if (isConnected) {
-        _internetSubscription?.cancel;
-        _internetSubscription = InternetConnection().onStatusChange.listen((status) async {
-              if (status == InternetStatus.connected) {
-                final user = await authProvider.verifyNumber(
-                  phoneNumber: phone,
-                  token: token,
-                );
-                //Save a user to the local database immediately they verify their number
-                if(user != null){
-                  await userProvider.saveUser(
-                      id: user.id,
-                      name: user.name,
-                      imageUrl: user.imageUrl,
-                      phone: user.phoneNumber
-                  );
-                }
-                emit(AuthStateVerifyOtp(
-                    phone: phone,
-                    isLoading: false));
-                emit(AuthStateSetProfile(phone: phone));
-              }
-              else {
-                throw Exception('Your internet was interrupted during verification');
-              }}
+        await authProvider.verifyNumber(
+          phoneNumber: phone,
+          token: token,
         );
+        emit(AuthStateVerifyOtp(
+            phone: phone,
+            isLoading: false));
+        emit(AuthStateSetProfile(phone: phone));
       }
       else {
         throw Exception('NO INTERNET!');
@@ -174,29 +140,15 @@ class AuthCubit extends Cubit<AuthCubitState> {
          try {
            final isConnected = await InternetConnection().hasInternetAccess;
            if(isConnected){
-             _internetSubscription?.cancel;
-             _internetSubscription = InternetConnection().onStatusChange.listen((status) async {
-               switch(status){
-                 case InternetStatus.connected:
-                   final user = await userProvider.getUserFromSupabaseByPhone(phone);
-                   if(user == null) throw Exception('No user found');
-                   if (name.isEmpty) throw Exception('Set your name');
-                   await userProvider.updateUserDataOnSupabase(
-                     id: user.id,
-                     name: name,
-                     avatar: avatarFile,
-                   );
-                   emit(const AuthStateDone());
-                   break;
-                 case InternetStatus.disconnected:
-                   emit(AuthStateSetProfile(
-                       file: avatarFile,
-                       isLoading: false,
-                       hasError: true,
-                       phone: phone,
-                       errorMessage: 'Your internet was interrupted'));
-                   break;
-               }});
+             final user = await userProvider.getUserFromSupabaseByPhone(phone);
+             if(user == null) throw Exception('No user found');
+             if (name.isEmpty) throw Exception('Set your name');
+             await userProvider.updateUserDataOnSupabase(
+               id: user.id,
+               name: name,
+               avatar: avatarFile,
+             );
+             emit(const AuthStateDone());
            }
            else {
               emit(AuthStateSetProfile(
@@ -315,4 +267,47 @@ class AuthCubit extends Cubit<AuthCubitState> {
             errorMessage: e.toString()));
       }
     }
+  //-----------------------------------------------
+
+  /*signInWithPassword({
+    required String phone,
+    required String password,
+  }) async {
+    emit(const AuthStateSignIn(isLoading: true));
+    try {
+      final isConnected = await InternetConnection().hasInternetAccess;
+      if(isConnected){
+        final user = await userProvider.getUserFromSupabaseByPhone(phone);
+        if (user == null) {
+          await authProvider.signUpWithPassword(
+              phoneNumber: phone,
+              password: password
+          );
+          emit(const AuthStateSignIn(isLoading: false));
+          emit(AuthStateSetProfile(
+            phone: phone,
+          ));
+        }
+        else {
+          await authProvider.signInWithPassword(
+              phoneNumber: user.phoneNumber,
+              password: password
+          );
+          emit(const AuthStateSignIn(isLoading: false));
+          emit(AuthStateSetProfile(
+            phone: user.phoneNumber,
+          ));
+        }
+      }
+      else {
+        throw Exception('NO INTERNET!');
+      }
+    } on Exception catch (e) {
+      emit(AuthStateSignIn(
+          isLoading: false,
+          hasError: true,
+          errorMessage: e.toString()));
+    }
+
+  }*/
 }

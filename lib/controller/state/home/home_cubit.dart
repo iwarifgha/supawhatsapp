@@ -6,6 +6,7 @@ import '../../../helpers/enums/active_status.dart';
 import '../../../helpers/utils/locator.dart';
 import '../../features/chat/message_chat_service.dart';
 import '../../features/contacts/contacts_service.dart';
+import '../../features/user/user_service.dart';
 import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeCubitState>{
@@ -22,6 +23,7 @@ class HomeCubit extends Cubit<HomeCubitState>{
 
 
   final chatAndMessagesProvider = locator<MessageChatService>();
+  final userProvider = locator<UserService>();
   final contactProvider = locator<ContactService>();
   StreamSubscription? _messageSubscription;
   StreamSubscription? _chatSubscription;
@@ -59,11 +61,7 @@ class HomeCubit extends Cubit<HomeCubitState>{
     }
   }
 
-  autoAddContacts() async {
-    await contactProvider.autoAddContact();
-      print('contatcts added');
 
-  }
 
   showContacts() async {
     final contacts = await contactProvider.getContacts();
@@ -73,17 +71,20 @@ class HomeCubit extends Cubit<HomeCubitState>{
   startOrGetChat(String phone) async {
     final isConnected = await InternetConnection().hasInternetAccess;
     if (isConnected) {
-      final contact = await contactProvider.getContact(phone);
-      final existingChat = await chatAndMessagesProvider.getChatByRecipientPhone(phone:contact.phoneNumber);
+      final userContact = await userProvider.getUserFromSupabaseByPhone(phone);
+      if (userContact == null){
+        throw Exception('User not found');
+      }
+      final existingChat = await chatAndMessagesProvider.getChatByRecipientPhone(phone:userContact.phoneNumber);
       final messageStream = chatAndMessagesProvider.messageStream(existingChat.id);
       if(existingChat.messages!.isNotEmpty){
         _messageSubscription = messageStream.listen((event) {
-          emit(HomeChatState(messages: event, contact: contact));
+          emit(HomeChatState(chat: existingChat));
         });
       } else {
-        await chatAndMessagesProvider.startChat(recipientNumber:contact.phoneNumber );
+        final chat = await chatAndMessagesProvider.startChat(recipientNumber: userContact.phoneNumber );
         _messageSubscription = messageStream.listen((event) {
-          emit(HomeChatState(messages: event, contact: contact));
+          emit(HomeChatState(chat: chat ));
         });
       }
     }
@@ -102,11 +103,12 @@ class HomeCubit extends Cubit<HomeCubitState>{
     final isConnected = await InternetConnection().hasInternetAccess;
     if (isConnected) {
       if (state is HomeChatState) {
-        final contact = await contactProvider.getContact(phone);
+        await userProvider.getUserFromSupabaseByPhone(phone);
         final messageStream = chatAndMessagesProvider.messageStream(chatId);
+        final chat = await chatAndMessagesProvider.getChatById(chatId);
         await chatAndMessagesProvider.sendMessage(message: message, chatId: chatId, senderNumber: sender);
         _messageSubscription = messageStream.listen((event) {
-          emit(HomeChatState(contact: contact, messages: event));
+          emit(HomeChatState(chat: chat));
         });
       }
     }
@@ -121,7 +123,7 @@ class HomeCubit extends Cubit<HomeCubitState>{
      if (isConnected) {
        final currentState = state as HomeChatState;
       final chat = await chatAndMessagesProvider.getChatByRecipientPhone(
-          phone: currentState.contact.phoneNumber
+          phone: currentState.chat.receiver.phoneNumber
       );
        if (chat.messages!.isEmpty){
         chatAndMessagesProvider.deleteChat(chat.id);

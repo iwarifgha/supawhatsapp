@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:whatsapp_clone/controller/state/startup/startup_cubit.dart';
 import 'package:whatsapp_clone/controller/state/startup/startup_state.dart';
 
+import '../../../helpers/widgets/app/app_button.dart';
 import '../auth/auth_cubit.dart';
 import '../auth/auth_state_logic.dart';
 import '../home/home_cubit.dart';
@@ -34,8 +35,17 @@ class StartUpLogic extends StatelessWidget {
           }
           else if (state is StartUpErrorState){
             return Scaffold(
-              body: Center(
-                  child: Text(state.errorMessage)),
+              body: Column(
+                children: [
+                  Center(
+                      child: Text(state.errorMessage)),
+                  AppButton(
+                    onTap: () {
+                      context.read<StartUpCubit>().initialize();
+                    },
+                    text: 'Try again',)
+                ],
+              ),
             );
           }
           else {

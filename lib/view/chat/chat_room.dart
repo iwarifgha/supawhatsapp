@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:whatsapp_clone/supabase_client.dart';
+import 'package:whatsapp_clone/supabase.dart';
 
 
 import '../../controller/state/home/home_cubit.dart';
@@ -11,7 +11,7 @@ import '../../helpers/widgets/message/input_message_widget.dart';
 import '../../helpers/widgets/message/message_list_widget.dart';
 
 class ChatRoom extends StatefulWidget {
-  const ChatRoom({Key? key, required contact,}) : super(key: key);
+  const ChatRoom({Key? key,}) : super(key: key);
 
 
   @override
@@ -54,12 +54,12 @@ class _ChatRoomState extends State<ChatRoom> {
          buildWhen:(previous, current) {
           var previousState = previous as HomeChatState;
           var currentState = current as HomeChatState;
-          return previousState.messages.length != currentState.messages.length;
+          return previousState.chat.messages?.length != currentState.chat.messages?.length;
          },
          builder: (context, state) {
            final myState = state as HomeChatState;
-           final messages = myState.messages;
-           final contact = myState.contact;
+           final messages = myState.chat.messages;
+           final contact = myState.chat.receiver;
 
            return Scaffold(
             //Appbar section
@@ -72,7 +72,7 @@ class _ChatRoomState extends State<ChatRoom> {
                children: [
                  Expanded(
                    child:  MessagesList(
-                     messages: messages,
+                     messages: messages!,
                      recipient: contact,
                    ),
                  ),

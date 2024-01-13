@@ -3,12 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:whatsapp_clone/helpers/widgets/text/app_text_medium.dart';
 
-import '../../../model/contact/contact.dart';
+import '../../../model/user/user.dart';
 
 class ChatViewAppBar extends StatelessWidget {
   const ChatViewAppBar({super.key, required this.contact});
 
-  final MyContact contact;
+  final MyUser contact;
   @override
   Widget build(BuildContext context) {
     return AppBar(

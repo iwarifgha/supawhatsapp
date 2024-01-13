@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,9 +22,7 @@ class HomeStateLogic extends StatelessWidget {
             return const ContactsListView();
           }
           else if (state is HomeChatState){
-            return ChatRoom(
-                contact: state.contact
-            );
+            return const ChatRoom();
           }
           else {
             return const Scaffold(

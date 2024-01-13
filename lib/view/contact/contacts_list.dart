@@ -24,7 +24,7 @@ class ContactsListView extends StatelessWidget {
          listener: (context, state){
            if(state is HomeShowContactsState){
              //final value = context.watch<HomeCubit>().networkSubscription;
-              if(state.hasConnection == true) context.read<HomeCubit>().autoAddContacts();
+              //if(state.hasConnection == true) context.read<HomeCubit>().autoAddContacts();
            }
          },
          builder: (context, state) {

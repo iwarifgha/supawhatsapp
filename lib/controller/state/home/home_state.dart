@@ -1,9 +1,4 @@
-
-
-
 import 'package:equatable/equatable.dart';
-import 'package:whatsapp_clone/model/message/message.dart';
-
 import '../../../helpers/enums/active_status.dart';
 import '../../../model/chat/chat.dart';
 import '../../../model/contact/contact.dart';
@@ -48,17 +43,15 @@ class HomeShowContactsState extends HomeCubitState {
 
 
 class HomeChatState extends HomeCubitState {
-  final MyContact contact;
-  final List<Message> messages;
-
+  final Chat chat;
   const HomeChatState({
-    required this.contact,
-    required this.messages
+    required this.chat,
+
   });
 
   @override
   // TODO: implement props
-  List<Object?> get props => [contact, messages];
+  List<Object?> get props => [chat];
 
 }
 

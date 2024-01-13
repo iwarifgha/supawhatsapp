@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:whatsapp_clone/view/auth/set_profile.dart';
 import '../../controller/state/auth/auth_cubit.dart';
 import '../../controller/state/auth/auth_state.dart';
 import '../../helpers/utils/loading_dialog.dart';
 import '../../helpers/utils/show_error_dialog.dart';
 import '../../helpers/widgets/app/app_bar_widget.dart';
 import '../../helpers/widgets/app/app_button.dart';
-import '../../helpers/widgets/text/app_text_medium.dart';
 
 class SignInView extends StatefulWidget {
   const SignInView({Key? key}) : super(key: key);
@@ -22,6 +20,7 @@ class _SignInViewState extends State<SignInView> {
 
   final loginFormKey = GlobalKey<FormState>();
   String phoneNumber = '';
+  TextEditingController passController = TextEditingController();
 
 
 
@@ -65,11 +64,14 @@ class _SignInViewState extends State<SignInView> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10,),
+                  const SizedBox(height: 10),
+                  //const SizedBox(height: 10),
                   AppButton(
                     onTap: () {
                       if (loginFormKey.currentState!.validate()) {
-                      context.read<AuthCubit>().signIn(phone: phoneNumber);
+                      context.read<AuthCubit>().signIn(
+                          phone: phoneNumber,
+                      );
                         }
                       },
                     text: 'NEXT',
@@ -82,3 +84,11 @@ class _SignInViewState extends State<SignInView> {
     );
   }
 }
+
+
+/*Center(
+                    child: TextField(
+                      controller: passController,
+                    ),
+                  ),*/
+// password: passController.text

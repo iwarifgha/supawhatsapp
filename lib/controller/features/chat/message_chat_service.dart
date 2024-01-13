@@ -1,6 +1,6 @@
 
 import 'package:flutter/foundation.dart';
-import 'package:whatsapp_clone/supabase_client.dart';
+import 'package:whatsapp_clone/supabase.dart';
 
 import '../../../helpers/exceptions/exceptions.dart';
 import '../../../model/chat/chat.dart';
@@ -60,7 +60,7 @@ Stream<List<Message>>  messageStream(String chatId){
 ///gets all the chats of the current user using their phone number
 Future<Iterable<Chat>> getChats() async {
    final response = await _supabase.from(_chatsTable).
-   select<List<Map<String, dynamic>>>('*, messages(*)').
+   select<List<Map<String, dynamic>>>('*, messages(*), ').
    eq(_chatOwnerNumber, _currentUserNumber);
    final chats = response.map((e) => Chat.fromDatabase(e));
    return chats;
@@ -120,7 +120,7 @@ Future<Chat> startChat({required String recipientNumber}) async {
         print(sentMessage);
       }
       return sentMessage;
-    } on Exception catch(e) {
+    } on Exception {
        throw MessageNotSentException();
     }
   }

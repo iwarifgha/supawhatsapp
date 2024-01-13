@@ -1,19 +1,16 @@
 import 'dart:async';
-
+import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:whatsapp_clone/controller/features/auth/auth_interface.dart';
-import '../../../helpers/exceptions/exceptions.dart';
-import '../../../helpers/utils/locator.dart';
-
 import '../../../model/user/user.dart';
-import '../../../supabase_client.dart';
-import '../user/user_service.dart';
+import '../../../supabase.dart';
+
 
 class AuthService extends AuthProvider{
   AuthService();
 
 
-///gets currently logged in user
+///Gets the currently logged in user
 @override
   MyUser? get currentUser {
   final user = MySupabaseClient.supabase.auth.currentSession?.user;
@@ -28,14 +25,21 @@ class AuthService extends AuthProvider{
   Future<void> signIn({
   required String phoneNumber
 }) async {
-  await MySupabaseClient.supabase.auth.signInWithOtp(phone: phoneNumber);
+  await MySupabaseClient.supabase.auth.
+  signInWithOtp(
+      phone: phoneNumber
+  );
 }
+
+
 
 ///Sign out
 @override
   Future<void> signOut() async {
   await MySupabaseClient.supabase.auth.signOut();
 }
+
+
 ///Verifies token sent to user
 @override
   Future<MyUser?> verifyNumber({
@@ -61,14 +65,14 @@ class AuthService extends AuthProvider{
 }
   ///Registers a user. Supabase requires a password to create a
   ///user. However, this is not needed for this App as it uses phone sign-in.
-  ///So a random password is generated.
+  ///So we generate a random password.
 @override
   Future<MyUser> signUp({
-  required String phoneNumber
+  required String phoneNumber,
 }) async {
   try {
     final user = await MySupabaseClient.supabase.auth.signUp(
-        password: '-=£%£21¬/6^&*(0)()_=-=£%£21¬/6^&*(0)()',//not secure
+        password: Random().nextInt(25).toString(),
         phone: phoneNumber
     );
     return MyUser.fromSupabaseAuth(user.user!);
@@ -76,6 +80,30 @@ class AuthService extends AuthProvider{
     throw Exception(e);
   }
 }
-
-
 }
+//'-=£%£21¬/6^&*(0)()_=-=£%£21¬/6^&*(0)()',
+/* Future<MyUser> signUpWithPassword({
+    required String phoneNumber,
+    required String password
+  }) async {
+    try {
+      final user = await MySupabaseClient.supabase.auth.signUp(
+          password: password,
+          phone: phoneNumber
+      );
+      return MyUser.fromSupabaseAuth(user.user!);
+    } on Exception catch (e) {
+      throw Exception(e);
+    }
+  }*/
+/*@override
+  Future<void> signInWithPassword({
+    required String phoneNumber,
+    required String password,
+
+  }) async {
+    await MySupabaseClient.supabase.auth.signInWithPassword(
+        phone: phoneNumber,
+        password: password
+    );
+  }*/

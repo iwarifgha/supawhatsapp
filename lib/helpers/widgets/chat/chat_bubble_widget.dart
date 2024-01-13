@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:whatsapp_clone/message_model.dart';
-
 import '../../../model/message/message.dart';
 import '../text/chat_text.dart';
 

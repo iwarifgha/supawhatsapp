@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../helpers/enums/active_status.dart';
+import '../../../model/user/user.dart';
 
 abstract class StartUpState extends Equatable{
   const StartUpState();
@@ -28,12 +28,12 @@ class StartUpErrorState extends StartUpState{
 }
 
 class StartUpHomeState extends StartUpState {
-  final bool isLoading;
-  final ActiveStatus status;
+  final bool? isLoading;
+  final MyUser user;
 
-  const StartUpHomeState({required this.status, required this.isLoading});
+  const StartUpHomeState({required this.user, required this.isLoading});
 
   @override
-  List<Object?> get props => [status, isLoading];
+  List<Object?> get props => [user, isLoading];
 
 }

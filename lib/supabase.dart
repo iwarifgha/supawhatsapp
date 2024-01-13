@@ -4,9 +4,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config.dart';
 
 
-/*
-Uncomment this class and place your own 'url' and 'anonKey' from your own supabase project here.
+//Uncomment the class below and place your own 'url' and 'anonKey' from your own supabase project.
 
+/*
 class Config {
   static const kUrl = 'YOUR_SUPABASE_URL';
   static const kAnonKey = 'YOUR SUPABASE ANON KEY';
