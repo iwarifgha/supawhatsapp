@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
-import '../../../helpers/enums/active_status.dart';
 import '../../../helpers/utils/locator.dart';
 import '../../features/chat/message_chat_service.dart';
 import '../../features/contacts/contacts_service.dart';
@@ -47,25 +46,23 @@ class HomeCubit extends Cubit<HomeCubitState>{
           if(status == InternetStatus.connected){
             final chats = chatAndMessagesProvider.chatsStream;
             _chatSubscription?.cancel();
-            _chatSubscription = chats.listen((event) {
-              for(var chat in event){
-                //add it to the local stream of chats
-              }
-              emit(HomeAppState(chats: event, status: ActiveStatus.online, hasConnection: true));
+            _chatSubscription = chats.listen((listOfChats) {
+              emit(HomePageState(
+                  chats: listOfChats,
+               ));
             });
           }
         });
       }
     else {
-      emit(const HomeAppState(status: ActiveStatus.offline, hasConnection: false));
+      emit(const HomePageState());
     }
   }
 
 
 
-  showContacts() async {
-    final contacts = await contactProvider.getContacts();
-    emit(HomeShowContactsState(contacts: contacts, hasConnection: true));
+  getContacts() async {
+    emit(const HomeContactsState());
   }
 
   startOrGetChat(String phone) async {

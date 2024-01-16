@@ -13,8 +13,9 @@ class AuthService extends AuthProvider{
 ///Gets the currently logged in user
 @override
   MyUser? get currentUser {
-  final user = MySupabaseClient.supabase.auth.currentSession?.user;
+  final user = MySupabaseClient.supabase.auth.currentUser;
   if(user != null){
+    print('user is not null');
     return MyUser.fromSupabaseAuth(user);
   }
   return null;
@@ -80,7 +81,32 @@ class AuthService extends AuthProvider{
     throw Exception(e);
   }
 }
+
+  @override
+  Stream<AuthState> get currentState => MySupabaseClient.supabase.auth.onAuthStateChange;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //'-=£%£21¬/6^&*(0)()_=-=£%£21¬/6^&*(0)()',
 /* Future<MyUser> signUpWithPassword({
     required String phoneNumber,

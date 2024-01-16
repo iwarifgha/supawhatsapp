@@ -36,12 +36,14 @@ class StartUpLogic extends StatelessWidget {
           else if (state is StartUpErrorState){
             return Scaffold(
               body: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Center(
                       child: Text(state.errorMessage)),
+                  SizedBox(height: 10,),
                   AppButton(
                     onTap: () {
-                      context.read<StartUpCubit>().initialize();
+                      context.read<StartUpCubit>().start();
                     },
                     text: 'Try again',)
                 ],

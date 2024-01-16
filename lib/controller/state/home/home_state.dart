@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../helpers/enums/active_status.dart';
 import '../../../model/chat/chat.dart';
-import '../../../model/contact/contact.dart';
 
 
 abstract class HomeCubitState extends Equatable {
@@ -25,19 +23,11 @@ class HomeStateStatus extends HomeCubitState {
   List<Object?> get props => throw UnimplementedError();
 }
 
-class HomeShowContactsState extends HomeCubitState {
-
-  final List<MyContact> contacts;
-  final bool? hasConnection;
-
-  const HomeShowContactsState({
-    this.hasConnection,
-    required this.contacts
-  });
+class HomeContactsState extends HomeCubitState {
+  const HomeContactsState();
 
   @override
-  // TODO: implement props
-  List<Object?> get props => [hasConnection, contacts];
+  List<Object?> get props => [];
 }
 
 
@@ -55,13 +45,17 @@ class HomeChatState extends HomeCubitState {
 
 }
 
-class HomeAppState extends HomeCubitState {
-  final ActiveStatus status;
+class HomePageState extends HomeCubitState {
+ // final ActiveStatus status;
   final List<Chat>? chats;
-  final bool? hasConnection;
-  const HomeAppState({required this.status, this.chats, this.hasConnection});
+  //final bool? hasConnection;
+  const HomePageState({
+    //required this.status,
+    this.chats,
+    //this.hasConnection
+  });
 
   @override
   // TODO: implement props
-  List<Object?> get props =>  [status, chats, hasConnection];
+  List<Object?> get props =>  [chats,];
 }

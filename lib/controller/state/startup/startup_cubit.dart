@@ -1,6 +1,6 @@
 
 import 'package:bloc/bloc.dart';
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:whatsapp_clone/controller/features/auth/auth_service.dart';
 import 'package:whatsapp_clone/controller/state/startup/startup_state.dart';
 import '../../../helpers/utils/locator.dart';
@@ -12,30 +12,38 @@ class StartUpCubit extends Cubit<StartUpState>{
   ///whether there is a user or not.
 
   StartUpCubit(): super (StartUpInitialState()){
-    initialize();
+     start();
    }
 
   final  authProvider =  locator<AuthService>();
 
-  initialize() async {
-    final isConnected = await InternetConnection().hasInternetAccess;
-    if(isConnected){
-      final user = authProvider.currentUser;
-      if(user == null) {
-        emit(StartUpAuthState());
-      }
-      else {
-        StartUpHomeState(
-            user: user,
-            isLoading: null
-        );
-      }
+  start(){
+    try {
+      final state = authProvider.currentState;
+      state.listen((event) {
+        if (event.event == AuthChangeEvent.signedIn){
+          final user = authProvider.currentUser;
+          emit(StartUpHomeState(
+              user: user!,
+              isLoading: null
+          ));
+        }
+        else if (event.event == AuthChangeEvent.tokenRefreshed){
+          final user = authProvider.currentUser;
+          emit(StartUpHomeState(
+              user: user!,
+              isLoading: null
+          ));
+        }
+        else {
+          emit(StartUpAuthState());
+        }
+      });
+    } on Exception catch (e) {
+      emit(StartUpErrorState(
+          errorMessage: e.toString()
+      ));
     }
-    else{
-      print('disconnected');
-       emit(const StartUpErrorState(
-          errorMessage: 'No internet')
-      );
-    }
+
   }
-}
+ }

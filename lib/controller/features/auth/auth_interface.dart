@@ -1,11 +1,13 @@
 
 
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../../model/user/user.dart';
-import '../../../model/user/user_session.dart';
 
 abstract class AuthProvider{
    MyUser? get currentUser;
+   Stream<AuthState> get currentState;
 
   Future<void> signIn ({
     required String phoneNumber});

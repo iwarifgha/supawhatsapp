@@ -53,8 +53,9 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
 
           },
            builder: (context, state){
-              state as HomeAppState;
-              if (state.hasConnection == true){
+              state as HomePageState;
+              if (state.chats != null){
+                final chats = state.chats!;
                 return NestedScrollView(
                     headerSliverBuilder: (context, _){
                       return [
@@ -90,7 +91,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                           //Chats Section
                           ChatList(
                             onTap: () {  },
-                            chats: state.chats!,//not doing anything with this at the moment
+                            chats: chats,
                           ),
                           //Status Section
                           const StatusList(),
@@ -102,7 +103,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
               }
               else {
                 return const Center(
-                    child: Text('NO INTERNET!'));
+                    child: Text('No Chats to display!'));
               }
            }
        ),
@@ -110,7 +111,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
           notifier: notifier,
           animation: tabController.animation!,
           onStartChat: () {
-            context.read<HomeCubit>().showContacts();
+            context.read<HomeCubit>().getContacts();
            },
           onAddStatus: () {
             Navigator.of(context).push(MaterialPageRoute(
