@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:whatsapp_clone/supabase.dart';
+import 'package:whatsapp_clone/controller/state/chat/chat_cubit.dart';
+import 'package:whatsapp_clone/controller/state/chat/chat_state.dart';
+import 'package:whatsapp_clone/model/user/user.dart';
 
 
 import '../../controller/state/home/home_cubit.dart';
-import '../../controller/state/home/home_state.dart';
 
 import '../../helpers/widgets/chat/chatview_app_bar_widget.dart';
 import '../../helpers/widgets/message/input_message_widget.dart';
 import '../../helpers/widgets/message/message_list_widget.dart';
 
 class ChatRoom extends StatefulWidget {
-  const ChatRoom({Key? key,}) : super(key: key);
+  const ChatRoom({Key? key, required this.currentUser,}) : super(key: key);
 
+  final MyUser currentUser;
 
   @override
   State<ChatRoom> createState() => _ChatRoomState();
@@ -21,8 +23,6 @@ class ChatRoom extends StatefulWidget {
 class _ChatRoomState extends State<ChatRoom> {
   TextEditingController  textController = TextEditingController();
   ValueNotifier<bool> isTypingNotifier = ValueNotifier(false);
-  final sender = MySupabaseClient.supabase.auth.currentUser;
-
 
 
   void listenerForPageChange(){
@@ -48,32 +48,27 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget build(BuildContext context) {
      return  WillPopScope(
        onWillPop: (){
-         return context.read<HomeCubit>().startApp();
+         return context.read<HomeCubit>().startApp(user: widget.currentUser);
        },
-       child: BlocBuilder<HomeCubit, HomeCubitState>(
-         buildWhen:(previous, current) {
-          var previousState = previous as HomeChatState;
-          var currentState = current as HomeChatState;
-          return previousState.chat.messages?.length != currentState.chat.messages?.length;
-         },
+       child: BlocBuilder<ChatCubit, ChatCubitState>(
          builder: (context, state) {
-           final myState = state as HomeChatState;
-           final messages = myState.chat.messages;
-           final contact = myState.chat.receiver;
-
+           state as ChatRoomState;
+           final messages = state.chat.messages;
+           final recipient = state.chat.receivers.first;
            return Scaffold(
             //Appbar section
             appBar: PreferredSize(
                 preferredSize: const Size.fromHeight(50),
                 child: ChatViewAppBar(
-                    contact: contact
-                )),
+                    contact: recipient
+                )
+            ),
              body: Column(
                children: [
                  Expanded(
                    child:  MessagesList(
                      messages: messages!,
-                     recipient: contact,
+                     recipient: recipient,
                    ),
                  ),
                  InputMessageWidget(
@@ -84,11 +79,11 @@ class _ChatRoomState extends State<ChatRoom> {
                    isTypingNotifier: isTypingNotifier,
                    onRecord: (){},
                    onSend: () async {
-                     context.read<HomeCubit>().sendMessage(
+                     context.read<ChatCubit>().sendMessage(
                          message: textController.text,
                          chatId: messages.first.chatId,
-                         phone: contact.phoneNumber,
-                         sender: '2348143253986'
+                         phone: recipient.phoneNumber,
+                         currentUser: state.user
                      );
                     },
 

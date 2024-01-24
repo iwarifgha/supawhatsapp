@@ -2,16 +2,21 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:whatsapp_clone/model/chat/chat.dart';
 import '../../../helpers/utils/locator.dart';
-import '../../features/chat/message_chat_service.dart';
+import '../../../model/user/user.dart';
+import '../../features/chat/chat_service.dart';
 import '../../features/contacts/contacts_service.dart';
 import '../../features/user/user_service.dart';
 import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeCubitState>{
-  HomeCubit() : super(const HomeStateInitial()){
-    startApp();
+  final MyUser user;
+  HomeCubit(this.user) : super(const HomeStateInitial()){
+    startApp(user: user);
   }
+
+
 
   @override
   Future<void> close() {
@@ -30,106 +35,57 @@ class HomeCubit extends Cubit<HomeCubitState>{
 
   StreamSubscription<InternetStatus>? _networkSubscription ;
 
+  List<Chat> _chats = [];///the local cache of chats
 
 
 
 
-
-
-
-  startApp() async {
+  startApp({
+    required MyUser user,
+  }) async {
     final isConnected = await InternetConnection().hasInternetAccess;
       if(isConnected){
         _networkSubscription?.cancel();
         _networkSubscription = InternetConnection().onStatusChange.
         listen((InternetStatus status) {
           if(status == InternetStatus.connected){
-            final chats = chatAndMessagesProvider.chatsStream;
+            final chats = chatAndMessagesProvider.userChats();
             _chatSubscription?.cancel();
             _chatSubscription = chats.listen((listOfChats) {
               emit(HomePageState(
-                  chats: listOfChats,
+                chats: listOfChats,
+                user: user,
                ));
             });
           }
         });
       }
     else {
-      emit(const HomePageState());
+      emit(HomePageState(user: user));
     }
+  }
+
+  goToChatroom({
+    required MyUser currentUser,
+    required MyUser recipient,
+  }){
+    emit(HomeChatState(
+        currentUser: currentUser,
+        recipient: recipient));
   }
 
 
 
-  getContacts() async {
-    emit(const HomeContactsState());
+  getContacts({
+    required MyUser currentUser
+}) async {
+    emit(HomeContactsState(user: currentUser));
   }
 
-  startOrGetChat(String phone) async {
-    final isConnected = await InternetConnection().hasInternetAccess;
-    if (isConnected) {
-      final userContact = await userProvider.getUserFromSupabaseByPhone(phone);
-      if (userContact == null){
-        throw Exception('User not found');
-      }
-      final existingChat = await chatAndMessagesProvider.getChatByRecipientPhone(phone:userContact.phoneNumber);
-      final messageStream = chatAndMessagesProvider.messageStream(existingChat.id);
-      if(existingChat.messages!.isNotEmpty){
-        _messageSubscription = messageStream.listen((event) {
-          emit(HomeChatState(chat: existingChat));
-        });
-      } else {
-        final chat = await chatAndMessagesProvider.startChat(recipientNumber: userContact.phoneNumber );
-        _messageSubscription = messageStream.listen((event) {
-          emit(HomeChatState(chat: chat ));
-        });
-      }
-    }
-    else {
-      throw Exception('NO INTERNET');
 
-    }
-  }
 
-  sendMessage({
-    required String message,
-    required String chatId,
-    required String phone,
-    required String sender
-  }) async {
-    final isConnected = await InternetConnection().hasInternetAccess;
-    if (isConnected) {
-      if (state is HomeChatState) {
-        await userProvider.getUserFromSupabaseByPhone(phone);
-        final messageStream = chatAndMessagesProvider.messageStream(chatId);
-        final chat = await chatAndMessagesProvider.getChatById(chatId);
-        await chatAndMessagesProvider.sendMessage(message: message, chatId: chatId, senderNumber: sender);
-        _messageSubscription = messageStream.listen((event) {
-          emit(HomeChatState(chat: chat));
-        });
-      }
-    }
-    else{
-      throw Exception('NO INTERNET');
-    }
 
-   }
 
-   deleteChatIfEmpty() async {
-     final isConnected = await InternetConnection().hasInternetAccess;
-     if (isConnected) {
-       final currentState = state as HomeChatState;
-      final chat = await chatAndMessagesProvider.getChatByRecipientPhone(
-          phone: currentState.chat.receiver.phoneNumber
-      );
-       if (chat.messages!.isEmpty){
-        chatAndMessagesProvider.deleteChat(chat.id);
-      }
-    }
-     else {
-       return;
-     }
-  }
 
 
 }

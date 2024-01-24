@@ -39,7 +39,7 @@ class ChatBubble extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: AppTextChat(text: message.messageContent),
+          child: AppTextChat(text: message.content),
         ),
       ),
     );

@@ -17,7 +17,7 @@ class ChatTile extends StatelessWidget {
     return ListTile(
       leading: CircleAvatar(radius: 25,backgroundImage: NetworkImage(user.imageUrl),),
       title: AppTextMedium(text: user.name,),
-      subtitle: AppTextSmall(text: message.messageContent),
+      subtitle: AppTextSmall(text: message.content),
       trailing: const AppTextSmall(text: '2 min'),
     );
   }

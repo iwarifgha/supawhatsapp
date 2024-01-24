@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       theme:  appTheme,
       home:  BlocProvider(
         create: (context) => StartUpCubit(),
-        child: const StartUpLogic(),
+        child: StartUpLogic(),
       ),
     );
   }

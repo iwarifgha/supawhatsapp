@@ -43,7 +43,7 @@ class _CameraViewState extends State<CameraView>  with WidgetsBindingObserver {
       onWillPop: (){
         return context.read<AuthCubit>().goBack();
       },
-      child: BlocConsumer<AuthCubit, AuthCubitState>(
+      child: BlocBuilder<AuthCubit, AuthCubitState>(
           builder: (context, state) {
             state as AuthStateTakePicture;
             return CameraPreview(
@@ -104,12 +104,7 @@ class _CameraViewState extends State<CameraView>  with WidgetsBindingObserver {
               ),
             );
           },
-          listener: (context, state) {
-            if (state is AuthStateTakePicture){
-              if(state.hasError == true) showErrorDialog(context, state.errorMessage!);
-            }
-          }
-      ),
+       ),
     );
   }
 }

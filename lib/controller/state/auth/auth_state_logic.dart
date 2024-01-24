@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:whatsapp_clone/helpers/utils/locator.dart';
 
+import '../../../helpers/utils/loading_overlay.dart';
 import '../../../view/auth/camera_view.dart';
 import '../../../view/auth/set_profile.dart';
 import '../../../view/auth/sign_in.dart';
@@ -13,14 +15,20 @@ import 'auth_state.dart';
 
 class AuthStateLogic extends StatelessWidget {
 
-  ///Handles the routing for the authentication flow.
+  ///Handles the routing and error handling for the authentication flow.
   ///Most significant is the AuthStateDone.
   ///When state is AuthStateDone,the HomeCubit is provided to the App.
-  const AuthStateLogic({super.key});
+    AuthStateLogic({super.key});
 
+  final alertDialog = locator<AlertOverlay>();
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthCubit, AuthCubitState>(
+    return BlocConsumer<AuthCubit, AuthCubitState>(
+      listener: (context, state){
+        if (state.isLoading == false) alertDialog.dismiss();
+        if (state.isLoading == true) alertDialog.showLoading(text: 'Loading', context: context);
+        if (state.hasException == true && state.errorMessage != null) alertDialog.showError(text: state.errorMessage!, context: context);
+      },
         builder: (context, state ){
           if(state is AuthStateSignIn){
             return const SignInView();
@@ -39,10 +47,10 @@ class AuthStateLogic extends StatelessWidget {
           else if (state is AuthStateSignOut){
             return const WelcomeView();
           }
-          else if (state is AuthStateDone){
+          else if (state is AuthStateComplete){
             return  BlocProvider(
-              create: (context) => HomeCubit(),
-              child: const HomeStateLogic(),
+              create: (context) => HomeCubit(state.user),
+              child: HomeStateLogic(),
             );
           }
           else {

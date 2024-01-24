@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:whatsapp_clone/model/user/user.dart';
  import '../../controller/state/home/home_cubit.dart';
 import '../../controller/state/home/home_state.dart';
 import '../../helpers/widgets/app/floating_button_widget.dart';
@@ -10,14 +11,15 @@ import '../status/write_status_view.dart';
 
 
 class HomeView extends StatefulWidget  {
-  const HomeView({Key? key}) : super(key: key);
+  const HomeView({Key? key, required this.currentUser}) : super(key: key);
 
+  final MyUser currentUser;
   @override
   State<HomeView> createState() => _HomeViewState();
 }
 
 class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
-  ValueNotifier<double> notifier = ValueNotifier(0);
+  ValueNotifier<double> tabNotifier = ValueNotifier(0);
   late TabController tabController;
 
 
@@ -26,7 +28,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   @override
   void initState() {
     tabController = TabController(length: 3, vsync: this, );
-     tabController.addListener(() {
+    tabController.addListener(() {
         listener();
      });
      super.initState();
@@ -35,7 +37,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
 
 
   listener(){
-    notifier.value = tabController.animation!.value;
+    tabNotifier.value = tabController.animation!.value;
   }
 
   @override
@@ -48,10 +50,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
       return Scaffold(
-        body: BlocConsumer<HomeCubit, HomeCubitState>(
-          listener: (context, state){
-
-          },
+        body: BlocBuilder<HomeCubit, HomeCubitState>(
            builder: (context, state){
               state as HomePageState;
               if (state.chats != null){
@@ -90,7 +89,12 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                         children: [
                           //Chats Section
                           ChatList(
-                            onTap: () {  },
+                            onTap: (recipient) {
+                              context.read<HomeCubit>().goToChatroom(
+                                  currentUser: widget.currentUser,
+                                  recipient: recipient
+                              );
+                            },
                             chats: chats,
                           ),
                           //Status Section
@@ -108,10 +112,10 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
            }
        ),
         floatingActionButton: AppFloatingButton(
-          notifier: notifier,
+          notifier: tabNotifier,
           animation: tabController.animation!,
-          onStartChat: () {
-            context.read<HomeCubit>().getContacts();
+          onShowContacts: () {
+            context.read<HomeCubit>().getContacts(currentUser: widget.currentUser);
            },
           onAddStatus: () {
             Navigator.of(context).push(MaterialPageRoute(

@@ -1,9 +1,18 @@
 import 'package:equatable/equatable.dart';
 
+
 import '../../../model/user/user.dart';
 
 abstract class StartUpState extends Equatable{
-  const StartUpState();
+  final bool? hasException;
+  final bool? isLoading;
+  final String? errorMessage;
+
+  const StartUpState({
+    this.hasException,
+    this.isLoading,
+    this.errorMessage
+});
 }
 
 class StartUpAuthState extends StartUpState{
@@ -17,10 +26,9 @@ class StartUpInitialState extends StartUpState{
 }
 
 class StartUpErrorState extends StartUpState{
-  final String errorMessage;
 
   const StartUpErrorState({
-    required this.errorMessage
+    super.errorMessage
   });
 
   @override
@@ -28,12 +36,16 @@ class StartUpErrorState extends StartUpState{
 }
 
 class StartUpHomeState extends StartUpState {
-  final bool? isLoading;
   final MyUser user;
 
-  const StartUpHomeState({required this.user, required this.isLoading});
+  const StartUpHomeState({
+    required this.user,
+    super.isLoading,
+    super.errorMessage,
+    super.hasException
+  });
 
   @override
-  List<Object?> get props => [user, isLoading];
+  List<Object?> get props => [user, isLoading, errorMessage, hasException];
 
 }

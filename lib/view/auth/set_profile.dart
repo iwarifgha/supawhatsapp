@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:whatsapp_clone/helpers/utils/loading_dialog.dart';
-import 'package:whatsapp_clone/helpers/utils/show_error_dialog.dart';
 import 'package:whatsapp_clone/helpers/widgets/app/app_button.dart';
 
 import '../../controller/state/auth/auth_cubit.dart';
@@ -22,7 +20,7 @@ class SetProfileView extends StatelessWidget {
       onWillPop: (){
         return context.read<AuthCubit>().startAuthFlow();
       },
-      child: BlocConsumer<AuthCubit, AuthCubitState>(
+      child: BlocBuilder<AuthCubit, AuthCubitState>(
         builder: (context, state) {
           state as AuthStateSetProfile;
             return Scaffold(
@@ -77,14 +75,7 @@ class SetProfileView extends StatelessWidget {
               ),
             );
         },
-        listener: (context, state){
-          if(state is AuthStateSetProfile){
-            if (state.isLoading == false ) Navigator.pop(context);
-            if (state.hasError == true || state.errorMessage != null) showErrorDialog(context, state.errorMessage!);
-            if (state.isLoading == true) showLoading(context: context, text: 'Loading');
-           }
-        },
-      ),
+       ),
     );
   }
 }

@@ -90,7 +90,7 @@ class AuthCubit extends Cubit<AuthCubitState> {
     } on Exception catch (e) {
       emit(AuthStateSignIn(
           isLoading: false,
-          hasError: true,
+          hasException: true,
           errorMessage: e.toString()));
     }
 
@@ -124,7 +124,7 @@ class AuthCubit extends Cubit<AuthCubitState> {
       emit(AuthStateVerifyOtp(
         isLoading: false,
           phone: phone,
-          hasError: true,
+          hasException: true,
           errorMessage: e.toString()));
      }
   }
@@ -136,25 +136,25 @@ class AuthCubit extends Cubit<AuthCubitState> {
     required File avatarFile,
     required String phone
   }) async {
-         emit(AuthStateSetProfile(isLoading: true, hasError: false, phone: phone));
+         emit(AuthStateSetProfile(isLoading: true, hasException: false, phone: phone));
          try {
            final isConnected = await InternetConnection().hasInternetAccess;
            if(isConnected){
              final user = await userProvider.getUserFromSupabaseByPhone(phone);
              if(user == null) throw Exception('No user found');
              if (name.isEmpty) throw Exception('Set your name');
-             await userProvider.updateUserDataOnSupabase(
+             final currentUser = await userProvider.updateUserDataOnSupabase(
                id: user.id,
                name: name,
                avatar: avatarFile,
              );
-             emit(const AuthStateDone());
+             emit(AuthStateComplete(user: currentUser));
            }
            else {
               emit(AuthStateSetProfile(
                   file: avatarFile,
                   isLoading: false,
-                  hasError: true,
+                  hasException: true,
                   phone: phone,
                   errorMessage: 'No internet connection'));
            }
@@ -162,7 +162,7 @@ class AuthCubit extends Cubit<AuthCubitState> {
            emit(AuthStateSetProfile(
                file: avatarFile,
                isLoading: false,
-               hasError: true,
+               hasException: true,
                phone: phone,
                errorMessage: e.toString()));
          }
@@ -206,7 +206,7 @@ class AuthCubit extends Cubit<AuthCubitState> {
       final currentState = state as AuthStateTakePicture;
       emit(AuthStateSetProfile(
           phone: currentState.phone,
-          hasError: true,
+          hasException: true,
           errorMessage: e.toString()));
     }
    }
@@ -240,7 +240,7 @@ class AuthCubit extends Cubit<AuthCubitState> {
         isLoading: false,
         camera: currentState.camera,
         controller: currentState.controller,
-        hasError: true,
+        hasException: true,
         errorMessage: e.toString(),
         phone: phone,
        ));
@@ -263,51 +263,8 @@ class AuthCubit extends Cubit<AuthCubitState> {
         final currentState = state as AuthStateTakePicture;
         emit(AuthStateSetProfile(
             phone: currentState.phone,
-            hasError: true,
+            hasException: true,
             errorMessage: e.toString()));
       }
     }
-  //-----------------------------------------------
-
-  /*signInWithPassword({
-    required String phone,
-    required String password,
-  }) async {
-    emit(const AuthStateSignIn(isLoading: true));
-    try {
-      final isConnected = await InternetConnection().hasInternetAccess;
-      if(isConnected){
-        final user = await userProvider.getUserFromSupabaseByPhone(phone);
-        if (user == null) {
-          await authProvider.signUpWithPassword(
-              phoneNumber: phone,
-              password: password
-          );
-          emit(const AuthStateSignIn(isLoading: false));
-          emit(AuthStateSetProfile(
-            phone: phone,
-          ));
-        }
-        else {
-          await authProvider.signInWithPassword(
-              phoneNumber: user.phoneNumber,
-              password: password
-          );
-          emit(const AuthStateSignIn(isLoading: false));
-          emit(AuthStateSetProfile(
-            phone: user.phoneNumber,
-          ));
-        }
-      }
-      else {
-        throw Exception('NO INTERNET!');
-      }
-    } on Exception catch (e) {
-      emit(AuthStateSignIn(
-          isLoading: false,
-          hasError: true,
-          errorMessage: e.toString()));
-    }
-
-  }*/
 }

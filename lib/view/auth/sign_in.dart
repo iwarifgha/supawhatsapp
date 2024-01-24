@@ -3,10 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../controller/state/auth/auth_cubit.dart';
 import '../../controller/state/auth/auth_state.dart';
-import '../../helpers/utils/loading_dialog.dart';
-import '../../helpers/utils/show_error_dialog.dart';
 import '../../helpers/widgets/app/app_bar_widget.dart';
 import '../../helpers/widgets/app/app_button.dart';
+
+//|| !value.number.contains(RegExp(r'^[0-9]+$'),1)
+
 
 class SignInView extends StatefulWidget {
   const SignInView({Key? key}) : super(key: key);
@@ -28,14 +29,7 @@ class _SignInViewState extends State<SignInView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthCubit, AuthCubitState>(
-        listener: (context, state) {
-          if(state is AuthStateSignIn){
-            if(state.isLoading == true) showLoading(context: context, text: 'Signing In');
-            if(state.isLoading == false) Navigator.pop(context);
-            if(state.hasError == true && state.errorMessage != null) showErrorDialog(context, state.errorMessage!);
-          }
-        } ,
+    return BlocBuilder<AuthCubit, AuthCubitState>(
         builder: (context, state) {
           return Scaffold(
             appBar: const PreferredSize(
@@ -51,14 +45,16 @@ class _SignInViewState extends State<SignInView> {
                       child: IntlPhoneField(
                         initialCountryCode: 'NG',
                         validator: (value){
-                          if(value!.number.isEmpty || !value.number.contains(RegExp(r'^[0-9]+$'),1) || !value.isValidNumber()){
+                          if(value!.number.isEmpty || !value.isValidNumber()){
                             return 'Please input a valid number';
                           }
                           return null;
                         },
                         onChanged: (phone){
                           setState(() {
-                            phoneNumber = phone.completeNumber;
+                            final number = phone.number.replaceFirst(RegExp(r'^[0-9]'), '');
+                            final countryCode = phone.countryCode;
+                            phoneNumber = countryCode + number;
                           });
                         } ,
                       ),
@@ -69,6 +65,7 @@ class _SignInViewState extends State<SignInView> {
                   AppButton(
                     onTap: () {
                       if (loginFormKey.currentState!.validate()) {
+                        print(phoneNumber);
                       context.read<AuthCubit>().signIn(
                           phone: phoneNumber,
                       );
@@ -86,9 +83,4 @@ class _SignInViewState extends State<SignInView> {
 }
 
 
-/*Center(
-                    child: TextField(
-                      controller: passController,
-                    ),
-                  ),*/
-// password: passController.text
+

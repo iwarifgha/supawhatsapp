@@ -1,24 +1,32 @@
 import 'package:equatable/equatable.dart';
+import 'package:whatsapp_clone/model/user/user.dart';
 
 import '../../../model/contact/contact.dart';
 
 abstract class ContactCubitState extends Equatable {
-  const ContactCubitState();
-}
-
-class ContactListState extends ContactCubitState {
   final bool? hasException;
   final bool? isLoading;
   final String? errorMessage;
-  final List<MyContact> contacts;
 
 
-  const ContactListState({
-    required this.contacts,
-    this.isLoading,
+  const ContactCubitState({
     this.hasException,
-    this.errorMessage
+    this.isLoading,
+    this.errorMessage});
+}
+
+class ContactListState extends ContactCubitState {
+   final List<MyContact> contacts;
+   final MyUser currentUser;
+
+   const ContactListState({
+    required this.contacts,
+    required this.currentUser,
+    super.isLoading,
+    super.hasException,
+    super.errorMessage
   });
+
 
   @override
   List<Object?> get props => [isLoading, hasException, errorMessage, contacts];
@@ -26,9 +34,15 @@ class ContactListState extends ContactCubitState {
 }
 
 class ContactSelectedState extends ContactCubitState {
-  const ContactSelectedState();
+  final MyUser currentUser;
+  final MyUser contact;
+
+  const ContactSelectedState({
+    required this.contact,
+    required this.currentUser
+  });
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [currentUser];
 }
 
 class ContactInitialState extends ContactCubitState {

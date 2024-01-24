@@ -8,9 +8,11 @@ Future showErrorDialog (BuildContext context, String text){
         return AlertDialog(
           content: Text(text),
           actions: [
-            TextButton(onPressed: (){
-              Navigator.of(context).pop();
-            }, child: const Text('Ok'))
+            TextButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                  },
+                child: const Text('Ok'))
           ],
         );
       }

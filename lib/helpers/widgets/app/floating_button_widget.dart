@@ -5,14 +5,14 @@ class AppFloatingButton extends StatelessWidget {
   const AppFloatingButton({Key? key,
     required this.notifier,
     required this.animation,
-    required this.onStartChat,
+    required this.onShowContacts,
     required this.onAddStatus,
     required this.onStartCall,
    }) : super(key: key);
 
  final ValueNotifier<double> notifier;
  final Animation<double> animation;
- final VoidCallback onStartChat;
+ final VoidCallback onShowContacts;
  final VoidCallback onAddStatus;
   final VoidCallback onStartCall;
 
@@ -61,7 +61,7 @@ class AppFloatingButton extends StatelessWidget {
                             heroTag: null,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
                             elevation: 0,
-                            onPressed: onStartChat,
+                            onPressed: onShowContacts,
                             label: const Icon(Icons.message, size: 24,)),
                   ),
                      ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:whatsapp_clone/helpers/widgets/chat/chat_tile_widget.dart';
 
 import '../../../model/chat/chat.dart';
+import '../../../model/user/user.dart';
 
 class ChatList extends StatelessWidget {
   const ChatList({
@@ -12,7 +13,8 @@ class ChatList extends StatelessWidget {
   }) : super(key: key);
 
   final List<Chat> chats;
-  final VoidCallback onTap;
+  //final VoidCallback onTap;
+  final void Function(MyUser user) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +26,13 @@ class ChatList extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 5),
                 child: InkWell(
-                  onTap: onTap,
-                  child: ChatTile(user: chats[index].receiver, message: chats[index].messages!.last),
+                  onTap:(){
+                    onTap(chats[index].receivers.first);
+                  },
+                  child: ChatTile(
+                      user: chats[index].receivers.first,
+                      message: chats[index].messages!.last
+                  ),
 
                 ),
               );

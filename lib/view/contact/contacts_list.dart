@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:whatsapp_clone/controller/state/contact/contact_cubit.dart';
 import 'package:whatsapp_clone/controller/state/contact/contact_state.dart';
+import 'package:whatsapp_clone/model/user/user.dart';
 
 import '../../controller/state/home/home_cubit.dart';
 import '../../helpers/widgets/app/app_bar_widget.dart';
@@ -12,14 +13,15 @@ import '../../helpers/widgets/contact/contact_widget.dart';
 
 
 class ContactsListView extends StatelessWidget {
-    const ContactsListView({Key? key}) : super(key: key);
+    const ContactsListView({Key? key, required this.currentUser}) : super(key: key);
 
+    final MyUser currentUser;
 
   @override
   Widget build(BuildContext context) {
      return WillPopScope(
        onWillPop: (){
-         return context.read<HomeCubit>().startApp();
+         return context.read<HomeCubit>().startApp(user: currentUser);
        },
        child: BlocConsumer<ContactCubit, ContactCubitState>(
          listener: (context, state){
@@ -74,7 +76,10 @@ class ContactsListView extends StatelessWidget {
                                        imageUrl: 'assets/avatar.png' ,
                                        displayName: contact.name ?? contact.phoneNumber,
                                        onTap: () {
-                                         context.read<ContactCubit>().getAUser(phone: contact.phoneNumber);
+                                         context.read<ContactCubit>().getAUser(
+                                           phone: contact.phoneNumber,
+                                           currentUser: currentUser,
+                                         );
                                        },
                                      );
                                    }

@@ -1,9 +1,18 @@
 import 'package:equatable/equatable.dart';
 import '../../../model/chat/chat.dart';
+import '../../../model/user/user.dart';
 
 
 abstract class HomeCubitState extends Equatable {
-  const HomeCubitState();
+  final bool? hasException;
+  final bool? isLoading;
+  final String? errorMessage;
+
+  const HomeCubitState({
+    this.hasException,
+    this.isLoading,
+    this.errorMessage,
+  });
 }
 
 
@@ -11,51 +20,51 @@ class HomeStateInitial extends HomeCubitState {
    const HomeStateInitial();
 
   @override
-  // TODO: implement props
-  List<Object?> get props => throw UnimplementedError();
+   List<Object?> get props => [];
 }
 
-class HomeStateStatus extends HomeCubitState {
-  const HomeStateStatus();
-
-  @override
-  // TODO: implement props
-  List<Object?> get props => throw UnimplementedError();
-}
 
 class HomeContactsState extends HomeCubitState {
-  const HomeContactsState();
+  final MyUser user;
+  const HomeContactsState({
+    required this.user,
+    super.isLoading,
+    super.errorMessage,
+    super.hasException
+});
 
   @override
   List<Object?> get props => [];
 }
 
 
-
 class HomeChatState extends HomeCubitState {
-  final Chat chat;
+  final MyUser currentUser;
+  final MyUser recipient;
   const HomeChatState({
-    required this.chat,
-
-  });
+    required this.currentUser,
+    required this.recipient,
+    super.isLoading,
+    super.errorMessage,
+    super.hasException
+});
 
   @override
-  // TODO: implement props
-  List<Object?> get props => [chat];
-
+  List<Object?> get props => [];
 }
 
 class HomePageState extends HomeCubitState {
- // final ActiveStatus status;
+  final MyUser user;
   final List<Chat>? chats;
-  //final bool? hasConnection;
-  const HomePageState({
-    //required this.status,
-    this.chats,
-    //this.hasConnection
-  });
+
+   const HomePageState({
+     required this.user,
+     this.chats,
+     super.errorMessage,
+     super.hasException,
+     super.isLoading
+   });
 
   @override
-  // TODO: implement props
-  List<Object?> get props =>  [chats,];
+   List<Object?> get props =>  [chats,];
 }

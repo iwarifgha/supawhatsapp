@@ -1,19 +1,22 @@
 class Message{
-  final String senderNumber;
+  final String senderId;
   final String? id;
-  final String messageContent;
+  final String content;
   final String chatId;
+  final String createdAt;
 
   Message({
     required this.chatId,
-    required this.senderNumber,
-    required this.messageContent,
+    required this.senderId,
+    required this.content,
+    required this.createdAt,
     this.id
   });
 
   Message.fromDatabase(Map<String, dynamic> value):
-      messageContent = value['message_content'],
-      senderNumber = value['sender_number'],
+      content = value['content'],
+      senderId = value['sender_id'],
+        createdAt = value['created_at'],
       id = value['id'],
       chatId = value['chat_id'];
 

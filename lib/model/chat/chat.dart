@@ -3,23 +3,32 @@ import '../user/user.dart';
 
 class Chat{
   final String id;
-  final MyUser receiver;
+  final String name;
+  final String createdAt;
+  final List<MyUser> receivers;
   final List<Message>? messages;
 
-  Chat({
+  Chat( {
     this.messages,
-    required this.receiver,
-    required this.id
+    required this.createdAt,
+    required this.receivers,
+    required this.id,
+    required this.name,
   });
 
   static Chat fromDatabase(Map<String, dynamic> value){
-    final list = value['messages'] as List;
-    final List<Message> messagesList = list.map((item) => Message.fromDatabase(item)).toList();
+    final returnedMessages = value['messages'] as List;
+    final returnedUsers = value['messages'] as List;
+
+    final List<Message> messages =  returnedMessages.map((item) => Message.fromDatabase(item)).toList();
+    final List<MyUser> users = returnedUsers.map((item) => MyUser.fromDatabase(item)).toList();
 
     return Chat(
-        messages: messagesList,
-        receiver: value['receiver'],
+        messages: messages,
+        receivers: users,
+        createdAt: value['created_at'],
         id: value['id'],
+        name: value['name'],
      );
   }
 }

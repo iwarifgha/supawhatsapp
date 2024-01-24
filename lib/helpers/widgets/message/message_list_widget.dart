@@ -20,7 +20,7 @@ class MessagesList extends StatelessWidget {
         shrinkWrap: true,
         itemCount: messages.length,
         itemBuilder: (context, index){
-          final messageSender = messages[index].senderNumber;
+          final messageSender = messages[index].senderId;
           final chatRecipient = recipient.phoneNumber;
           final message = messages[index];
            return  Row(

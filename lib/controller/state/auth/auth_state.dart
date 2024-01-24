@@ -4,11 +4,20 @@ import 'package:camera/camera.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../../../model/user/user.dart';
+
 
 
 @immutable
 abstract class AuthCubitState extends Equatable{
-  const AuthCubitState();
+  final bool? hasException;
+  final bool? isLoading;
+  final String? errorMessage;
+  const AuthCubitState({
+    this.hasException,
+    this.isLoading,
+    this.errorMessage,
+  });
 }
 
 class AuthStateInitial extends AuthCubitState {
@@ -18,41 +27,40 @@ class AuthStateInitial extends AuthCubitState {
 }
 
 
-class AuthStateDone extends AuthCubitState {
-  const AuthStateDone();
+class AuthStateComplete extends AuthCubitState {
+  final MyUser user;
+
+  const AuthStateComplete({
+    required this.user
+  });
   @override
   List<Object?> get props => [];
 }
 
 
 class AuthStateSetProfile extends AuthCubitState {
-  final bool? isLoading;
-  final bool? hasError;
-  final String? errorMessage;
+
   final File? file;
   final String phone;
 
   const AuthStateSetProfile({
     required this.phone,
     this.file,
-    this.errorMessage,
-    this.isLoading,
-    this.hasError,
+    super.errorMessage,
+    super.isLoading,
+    super.hasException,
     });
 
   @override
   // TODO: implement props
-  List<Object?> get props => [isLoading, hasError, phone, errorMessage, file];
+  List<Object?> get props => [isLoading, hasException, phone, errorMessage, file];
 
 }
 
 class AuthStateTakePicture extends AuthCubitState {
   final CameraDescription camera;
   final CameraController controller;
-  final bool? isLoading;
   final String phone;
-  final bool? hasError;
-  final String? errorMessage;
   final File? file;
 
 
@@ -60,15 +68,16 @@ class AuthStateTakePicture extends AuthCubitState {
   const AuthStateTakePicture({
     required this.camera,
     required this.controller,
-    this.errorMessage,
-    this.isLoading,
-    this.hasError,
     this.file,
     required this.phone,
+    super.errorMessage,
+    super.isLoading,
+    super.hasException,
+
    });
 
   @override
-  List<Object?> get props => [camera, controller, errorMessage, isLoading, hasError];
+  List<Object?> get props => [camera, controller, errorMessage, isLoading, hasException];
 }
 
 class AuthStateSignOut extends AuthCubitState {
@@ -79,45 +88,28 @@ class AuthStateSignOut extends AuthCubitState {
 
 
 class AuthStateVerifyOtp extends AuthCubitState {
-  final bool? hasError;
-  final String? errorMessage;
+
   final String phone;
-  final bool isLoading;
 
   const AuthStateVerifyOtp({
-    this.hasError,
-    this.errorMessage,
     required this.phone,
-    this.isLoading = false
+    super.hasException,
+    super.errorMessage,
+    super.isLoading
   });
   @override
-  List<Object?> get props => [phone, hasError, errorMessage, isLoading];
+  List<Object?> get props => [phone, hasException, errorMessage, isLoading];
 }
 
 
 class AuthStateSignIn extends AuthCubitState {
-  final bool? hasError;
-  final String? errorMessage;
-  final bool isLoading;
 
   const AuthStateSignIn({
-     this.isLoading = false,
-     this.hasError,
-     this.errorMessage,
+    super.isLoading,
+    super.hasException,
+    super.errorMessage,
    });
   @override
-  List<Object?> get props => [hasError, errorMessage, isLoading];
+  List<Object?> get props => [hasException, errorMessage, isLoading];
 }
 
-/*AuthStateVerifyOtp copyWith({
-  bool? hasError,
-  String? errorMessage,
-  bool? isLoading
-}){
-  return AuthStateVerifyOtp(
-      hasError: hasError ?? this.hasError,
-      errorMessage: errorMessage ?? this.errorMessage,
-      phone: phone,
-      isLoading: isLoading ?? this.isLoading
-  );
-}*/

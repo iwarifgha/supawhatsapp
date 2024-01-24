@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:whatsapp_clone/controller/features/auth/auth_interface.dart';
+import 'package:whatsapp_clone/helpers/utils/password_generator.dart';
 import '../../../model/user/user.dart';
 import '../../../supabase.dart';
 
@@ -73,7 +74,7 @@ class AuthService extends AuthProvider{
 }) async {
   try {
     final user = await MySupabaseClient.supabase.auth.signUp(
-        password: Random().nextInt(25).toString(),
+        password: generatePassword(),
         phone: phoneNumber
     );
     return MyUser.fromSupabaseAuth(user.user!);
